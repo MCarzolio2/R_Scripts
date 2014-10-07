@@ -1,0 +1,36 @@
+# rWishart draw for Gibbs sampling in conjugate inference on precision matrices
+
+conj_wishart <- function(y,mu,nu,D){
+  
+  # y is an N x M matrix of observations, 
+  # where each column corresponds to a 
+  # multivariate normal draw of size N, 
+  # with covariance matrix Sigma and precision matrix Phi
+  
+  # mu is an N mean vector
+  
+  # nu is the prior df
+  
+  # D is the prior scale matrix
+  
+  # Check inputs:
+  D <- as.matrix(D)
+  if(diff(dim(D))!=0) cat("Error: Asymmetric scale matrix \n")
+  
+  if(class(y)!="matrix") cat("Error: class(y)!=matrix \n")
+  N <- nrow(y)
+  M <- ncol(y)
+  
+  if(nu+1<N) cat("Error: df + 1 < N \n")
+  if(!length(mu)%in%c(1,N)) cat("Error: !length(mu)%in%c(1,N) \n")
+  
+  errs <- apply(y,2,FUN=function(x) x-mu)
+  dev_mat <- matrix(0,ncol=N,nrow=N)
+  
+  for(i in 1:M) dev_mat <- dev_mat + errs[,i]%*%t(errs[,i])
+  
+  posterior_D <- solve(solve(D)+dev_mat)
+  
+  return(rWishart(n = 1,df = nu + M,posterior_D))
+  
+}
