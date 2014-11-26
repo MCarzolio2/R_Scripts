@@ -17,7 +17,7 @@ rMultiLaplace <- function(n,lambda,psi,mu=0){
   
 }
 
-logMultiLaplacePDF <- function(X,mu,psi,lambda){
+logMultiLaplacePDF <- function(X,lambda,Psi_inv,mu=0){
   
   # x is an MxN matrix of N observations of a multivariate Laplace
   # see: http://eo.uit.no/publications/te-spl-06.pdf
@@ -32,7 +32,7 @@ logMultiLaplacePDF <- function(X,mu,psi,lambda){
   
   for(i in 1:N){
     
-    q <- t(X[,i]-mu)%*%solve(psi)%*%(X[,i]-mu)
+    q <- t(X[,i]-mu)%*%Psi_inv%*%(X[,i]-mu)
     
     bessel <- besselK(sqrt(2/lambda*q),nu=p/2-1,expon.scaled=FALSE)
     term3 <- term3 + log(bessel)-(p/2-1)/2*log(lambda/2*q)

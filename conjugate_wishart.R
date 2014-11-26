@@ -21,10 +21,11 @@ conj_wishart <- function(y,mu,nu,D_inv){
   if(!length(mu)%in%c(1,N)) cat("Error: !length(mu)%in%c(1,N) \n")
   
   # Compute posterior draw:
-  errs <- apply(y,2,FUN=function(x) x-mu)
+  errs <- matrix(apply(y,2,FUN=function(x) x-mu),ncol=M)
+  
   dev_mat <- matrix(0,ncol=N,nrow=N)
   
-  for(i in 1:M) dev_mat <- dev_mat + errs[,i]%*%t(errs[,i])
+  for(i in 1:M) dev_mat <- dev_mat + sum(errs[,i]*errs[,i],na.rm=TRUE)
   
   posterior_D <- solve(D_inv+dev_mat)
   
