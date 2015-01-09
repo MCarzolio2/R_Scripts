@@ -6,9 +6,9 @@ source('./random_walk_metropolis_hastings.R')
 
 if(!'parallel'%in%installed.packages()[,1]) install.packages('parallel')
 
-particle_weights <- function(log_target,particles,nu){
+particle_weights <- function(log_target,particles,delta){
   
-  log_evals <- (1-nu)*unlist(lapply(particles,log_target))
+  log_evals <- (1-delta)*unlist(lapply(particles,log_target))
   max_log_evals <- max(log_evals)
   adjusted_log_evals <- log_evals-max_log_evals
   weights <- exp(adjusted_log_evals)/sum(exp(adjusted_log_evals))
@@ -16,8 +16,8 @@ particle_weights <- function(log_target,particles,nu){
   
 }
 
-wpt <- function(N,log_target,x_0,p,nu,prop_sd,burnin=0,parallel=TRUE,cl=NULL,keep.open=FALSE){
-  
+wpt <- function(N,log_target,x_0,p,nu,prop_sd,delta=NULL,burnin=0,parallel=TRUE,cl=NULL,keep.open=FALSE){
+  if(is.null(delta)) delta <- nu
   if(parallel){
     require(parallel)
     if(is.null(cl)){
@@ -41,7 +41,7 @@ wpt <- function(N,log_target,x_0,p,nu,prop_sd,burnin=0,parallel=TRUE,cl=NULL,kee
   d <- length(x_0)
   
   samples <- matrix(ncol=N,nrow=d)
-  weights <- sapply(1:(N+burnin),FUN=function(i) particle_weights(log_target,lapply(particles,FUN=function(x) x[,i]),nu))
+  weights <- sapply(1:(N+burnin),FUN=function(i) particle_weights(log_target,lapply(particles,FUN=function(x) x[,i]),delta))
   
   sample_ind <- sample(1:p,1,prob=weights[,1])
   current_sample <- particles[[sample_ind]][,1]
@@ -55,7 +55,7 @@ wpt <- function(N,log_target,x_0,p,nu,prop_sd,burnin=0,parallel=TRUE,cl=NULL,kee
     prop_sample <- particles[[sample_ind]][,i]
     
     pseudo_samples <- unlist(lapply(particles,FUN=function(x) x[,sample(1:i,1)])[-sample(1:p,1)])
-    pseudo_weights <- particle_weights(log_target,list(current_sample,pseudo_samples),nu)
+    pseudo_weights <- particle_weights(log_target,list(current_sample,pseudo_samples),delta)
     
     log_mh_ratio <- (1-nu)*(log_target(prop_sample)-log_target(current_sample))+log(pseudo_weights[1])-log(weights[sample_ind,i])
       
