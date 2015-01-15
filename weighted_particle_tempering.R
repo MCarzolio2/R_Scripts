@@ -16,13 +16,10 @@ particle_weights <- function(log_target,particles,delta){
   
 }
 
-<<<<<<< HEAD
 wpt <- function(N,log_target,x_0,p,nu,prop_sd,burnin=0,parallel=TRUE,cl=NULL,keep.open=FALSE){
   d <- length(x_0)
-=======
 wpt <- function(N,log_target,x_0,p,nu,prop_sd,delta=NULL,burnin=0,parallel=TRUE,cl=NULL,keep.open=FALSE){
   if(is.null(delta)) delta <- nu
->>>>>>> origin/master
   if(parallel){
     require(parallel)
     if(is.null(cl)){
@@ -57,13 +54,10 @@ wpt <- function(N,log_target,x_0,p,nu,prop_sd,delta=NULL,burnin=0,parallel=TRUE,
     sample_ind <- sample(1:p,1,prob=weights[,i])
     prop_sample <- particles[[sample_ind]][,i]
     
-<<<<<<< HEAD
     pseudo_samples <- lapply(particles,FUN=function(x) x[,i])[-sample_ind]
     pseudo_weights <- particle_weights(log_target,c(list(current_sample),pseudo_samples),nu)
-=======
     pseudo_samples <- unlist(lapply(particles,FUN=function(x) x[,sample(1:i,1)])[-sample(1:p,1)])
     pseudo_weights <- particle_weights(log_target,list(current_sample,pseudo_samples),delta)
->>>>>>> origin/master
     
     log_mh_ratio <- log_target(prop_sample)-log_target(current_sample)+log(pseudo_weights[1])-log(weights[sample_ind,i])+sum(sapply(c(list(current_sample),pseudo_samples),FUN=function(x) nu*log_target(x)))-sum(sapply(particles,FUN=function(x) nu*log_target(x[,i])))
       
