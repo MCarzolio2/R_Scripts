@@ -77,42 +77,35 @@ plotHPD <- function(hpd,plane=1:2,width,probs,ret=T,grps=NULL){
 			prob2 <- probs[i-1]*hpd[nrow(hpd),ncol(hpd)]
 			set <- hpd[hpd[,ncol(hpd)]<=prob1&hpd[,ncol(hpd)]>prob2,1+plane]
 			grps <- groups(set,width)
-			
-			for(i in 1:length(grps)){
-				
-				temp <- data.frame(grps[[i]])
-				x <- mean(temp[,1])
-				y <- mean(temp[,2])
-				
-				angs <- atan((temp[,2]-y)/(temp[,1]-x))
-				angs1 <- angs[temp[,1]>=x&temp[,2]>=y]
-				angs2 <- angs[temp[,1]<x&temp[,2]>=y]
-				angs3 <- angs[temp[,1]<x&temp[,2]<y]
-				angs4 <- angs[temp[,1]>=x&temp[,2]<y]
-				
-				temp1 <- temp[temp[,1]>=x&temp[,2]>=y,][order(angs1),]
-				temp2 <- temp[temp[,1]<x&temp[,2]>=y,][order(angs2),]
-				temp3 <- temp[temp[,1]<x&temp[,2]<y,][order(angs3),]
-				temp4 <- temp[temp[,1]>=x&temp[,2]<y,][order(angs4),]
-				
-				newtemp <- rbind(temp1,temp2,temp3,temp4)
-				newtemp <- rbind(newtemp,newtemp[1,])
-				
-				lines(newtemp,col='red')
-				grps[[i]] <- newtemp
-				print(newtemp)
-				}
 	
 			}
 			
-		} else{
-			for(i in 1:length(grps)){
-				lines(grps[[i]],col='red')
-				}
-			
-			}
-	if(ret) return(grps)
+		}
+	for(i in 1:length(grps)){
+	  
+	  temp <- data.frame(grps[[i]])
+	  x <- mean(temp[,1])
+	  y <- mean(temp[,2])
+	  
+	  angs <- atan((temp[,2]-y)/(temp[,1]-x))
+	  angs1 <- angs[temp[,1]>=x&temp[,2]>=y]
+	  angs2 <- angs[temp[,1]<x&temp[,2]>=y]
+	  angs3 <- angs[temp[,1]<x&temp[,2]<y]
+	  angs4 <- angs[temp[,1]>=x&temp[,2]<y]
+	  
+	  temp1 <- temp[temp[,1]>=x&temp[,2]>=y,][order(angs1),]
+	  temp2 <- temp[temp[,1]<x&temp[,2]>=y,][order(angs2),]
+	  temp3 <- temp[temp[,1]<x&temp[,2]<y,][order(angs3),]
+	  temp4 <- temp[temp[,1]>=x&temp[,2]<y,][order(angs4),]
+	  
+	  newtemp <- rbind(temp1,temp2,temp3,temp4)
+	  newtemp <- rbind(newtemp,newtemp[1,])
+	  
+	  lines(newtemp,lwd=2,lty=2)
+	  grps[[i]] <- newtemp
 	}
+	if(ret) return(grps)
+}
 plot(0,type='n')
 plotHPD(hpd,width=0.1,probs=0.9)->grps
 
@@ -147,12 +140,12 @@ trueProbs <- withinBounds(hpd[,2:3],grps)
 w <- sapply(1:ncol(trueProbs),FUN=function(x) sum(hpd[trueProbs[,x],4])/hpd[nrow(hpd),ncol(hpd)])
 
 if(interactive()){
-  system.time(landedParallel <- withinBounds(Zp,grps))
-  mean(rowSums(landedParallel))
-  cbind(sort(colSums(landedParallel)/nrow(landedParallel)/0.9),sort(w))
-  system.time(landedUltra <- withinBounds(Zu,grps))
-  mean(rowSums(landedUltra))
-  cbind(sort(colSums(landedUltra)/nrow(landedUltra)),sort(w))
+  #system.time(landedParallel <- withinBounds(Zp,grps))
+  #mean(rowSums(landedParallel))
+  #cbind(sort(colSums(landedParallel)/nrow(landedParallel)/0.9),sort(w))
+  #system.time(landedUltra <- withinBounds(Zu,grps))
+  #mean(rowSums(landedUltra))
+  #cbind(sort(colSums(landedUltra)/nrow(landedUltra)),sort(w))
   #plot(sapply(1:nrow(Zu),FUN=function(x)mean(landedUltra[1:x,5])))
 }
 
